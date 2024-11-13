@@ -50,12 +50,12 @@ public class NormArmBehavior : MonoBehaviour
         if (mousePosition.x > parent.position.x) //facing right
         {
             spriteRenderer.sprite = rightArm[hit];
-            spriteRenderer.sortingOrder = 2; //arm goes on top of body
+            spriteRenderer.sortingOrder = 3; //arm goes on top of body
         }
         else //facing left
         {
             spriteRenderer.sprite = leftArm[hit];
-            spriteRenderer.sortingOrder = 0; //arm goes behind body
+            spriteRenderer.sortingOrder = 1; //arm goes behind body
         }
 
         //Point toward mouse
