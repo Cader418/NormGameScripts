@@ -10,6 +10,8 @@ public class NormArmBehavior : MonoBehaviour
     private Rigidbody2D parent;
     private Animator anim;
     private SpriteRenderer spriteRenderer;
+    private PolygonCollider2D[] colliders;
+    private PolygonCollider2D currentCollider;
 
     [SerializeField] Sprite[] rightArm;
     [SerializeField] Sprite[] leftArm;
@@ -25,35 +27,24 @@ public class NormArmBehavior : MonoBehaviour
         parent = parentTransform.GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        colliders = GetComponents<PolygonCollider2D>();
+        currentCollider = colliders[0];
     }
 
     // Update is called once per frame
     private void Update()
     {
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-        //Determine attack
-        if (Input.GetMouseButtonDown(0)) //if mouse clicked
-        {
-            hit = 1; //extend arm
-            hitTimedOut = false;
-            StartCoroutine(allowHitFor(1f)); //wait for 1 sec before retracting arm
-        }
-        else if (Input.GetMouseButtonUp(0)) //if mouse released
-        {
-            hitTimedOut=true; //stop waiting to retract arm
-            StopAllCoroutines(); 
-        }
-        if (hitTimedOut == true) hit = 0; //retract arm
-
         //Determine arm animation
         if (mousePosition.x > parent.position.x) //facing right
         {
+            currentCollider = colliders[0];
             spriteRenderer.sprite = rightArm[hit];
             spriteRenderer.sortingOrder = 3; //arm goes on top of body
         }
         else //facing left
         {
+            currentCollider = colliders[1];
             spriteRenderer.sprite = leftArm[hit];
             spriteRenderer.sortingOrder = 1; //arm goes behind body
         }
@@ -64,6 +55,24 @@ public class NormArmBehavior : MonoBehaviour
         if (mousePosition.x > parent.position.x) angle -= 45f;
         else angle -= 135f;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+        //Determine attack
+        if (Input.GetMouseButtonDown(0)) //if mouse clicked
+        {
+            hit = 1; //extend arm
+            currentCollider.enabled = true;
+            hitTimedOut = false;
+            StartCoroutine(allowHitFor(1f)); //wait for 1 sec before retracting arm
+        }
+        else if (Input.GetMouseButtonUp(0)) //if mouse released
+        {
+            hitTimedOut=true; //stop waiting to retract arm
+            StopAllCoroutines(); 
+        }
+        if (hitTimedOut == true){
+            currentCollider.enabled = false;
+            hit = 0; //retract arm
+        }
     }
     private IEnumerator allowHitFor(float duration)
     {
