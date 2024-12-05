@@ -1,17 +1,18 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    private Rigidbody2D body;
-    private Animator anim;
+    [SerializeField] public float speed;
+    public Rigidbody2D body;
+    public Animator anim;
     private SpriteRenderer spriteRenderer;
     private CircleCollider2D circleCollider;
     private GameObject player;
     private int health;
     bool notHit;
-    bool facingRight;
+    public bool facingRight;
     // Start is called before the first frame update
     void Start()
     {
@@ -30,26 +31,39 @@ public class EnemyMovement : MonoBehaviour
         if (notHit)
         {
             Vector3 playerPosition = player.transform.position;
-
-            //Make enemy to look left or right based on position of player
-            facingRight = playerPosition.x > transform.position.x;
-            anim.SetBool("faceRight", facingRight);
-            anim.SetBool("faceLeft", !facingRight);
-
-            //Rotate toward Player
             Vector3 direction = playerPosition - transform.position;
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            if (facingRight)
-                transform.rotation = Quaternion.Euler(0f, 0f, angle);
-            else
-                transform.rotation = Quaternion.Euler(0f, 0f, angle - 180);
-            
-            //Normalize direction vector and move toward player.
-            direction.Normalize();
-            direction.x = direction.x / speed;
-            direction.y = direction.y / speed;
-            body.velocity = direction;
+
+            FacePlayer(playerPosition);
+            RotateTowardPlayer(direction);
+            MoveTowardPlayer(direction); 
         }
+    }
+
+    public void FacePlayer(Vector3 playerPosition)
+    {
+        //Make enemy to look left or right based on position of player
+        facingRight = playerPosition.x > transform.position.x;
+        anim.SetBool("faceRight", facingRight);
+        anim.SetBool("faceLeft", !facingRight);
+    }
+
+    public void RotateTowardPlayer(Vector3 direction)
+    {
+        //Rotate toward Player
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        if (facingRight)
+            transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        else
+            transform.rotation = Quaternion.Euler(0f, 0f, angle - 180);
+    }
+
+    public void MoveTowardPlayer(Vector3 direction)
+    {
+        //Normalize direction vector and move toward player.
+        direction.Normalize();
+        direction.x = direction.x / speed;
+        direction.y = direction.y / speed;
+        body.velocity = direction;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

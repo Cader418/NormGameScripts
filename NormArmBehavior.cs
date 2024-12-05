@@ -7,15 +7,16 @@ using UnityEngine;
 public class NormArmBehavior : MonoBehaviour
 {
     private Rigidbody2D body;
-    private Rigidbody2D parent;
+    public Rigidbody2D parent;
     private Animator anim;
-    private SpriteRenderer spriteRenderer;
-    private PolygonCollider2D[] colliders;
-    private PolygonCollider2D currentCollider;
+    public SpriteRenderer spriteRenderer;
+    public PolygonCollider2D[] colliders;
+    public PolygonCollider2D currentCollider;
 
-    [SerializeField] Sprite[] rightArm;
-    [SerializeField] Sprite[] leftArm;
+    [SerializeField] public Sprite[] rightArm;
+    [SerializeField] public Sprite[] leftArm;
     private bool hitTimedOut = true;
+    public float angle;
     int hit = 0;
 
     // Start is called before the first frame update
@@ -35,6 +36,13 @@ public class NormArmBehavior : MonoBehaviour
     private void Update()
     {
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        HandleArmAnimation(mousePosition); 
+        PointTowardMouse(mousePosition); 
+        HandleAttack();
+    }
+
+    public void HandleArmAnimation(Vector3 mousePosition)
+    {
         //Determine arm animation
         if (mousePosition.x > parent.position.x) //facing right
         {
@@ -48,14 +56,20 @@ public class NormArmBehavior : MonoBehaviour
             spriteRenderer.sprite = leftArm[hit];
             spriteRenderer.sortingOrder = 1; //arm goes behind body
         }
+    }
 
+    public void PointTowardMouse(Vector3 mousePosition)
+    {
         //Point toward mouse
         Vector3 direction = mousePosition - transform.position;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         if (mousePosition.x > parent.position.x) angle -= 45f;
         else angle -= 135f;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
+    }
 
+    public void HandleAttack()
+    {
         //Determine attack
         if (Input.GetMouseButtonDown(0)) //if mouse clicked
         {
@@ -66,14 +80,16 @@ public class NormArmBehavior : MonoBehaviour
         }
         else if (Input.GetMouseButtonUp(0)) //if mouse released
         {
-            hitTimedOut=true; //stop waiting to retract arm
-            StopAllCoroutines(); 
+            hitTimedOut = true; //stop waiting to retract arm
+            StopAllCoroutines();
         }
-        if (hitTimedOut == true){
+        if (hitTimedOut == true)
+        {
             currentCollider.enabled = false;
             hit = 0; //retract arm
         }
     }
+
     private IEnumerator allowHitFor(float duration)
     {
         hitTimedOut = false;

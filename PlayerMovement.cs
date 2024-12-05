@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float speed;
+    [SerializeField] public float speed;
     [SerializeField] private float jump_speed;
-    private Rigidbody2D body;
+    public Rigidbody2D body;
     private Animator anim;
     public int health = 5;
     public bool OnFloor { get; set; }
@@ -30,25 +30,34 @@ public class PlayerMovement : MonoBehaviour
     {
         if (notHit)
         {
-            float horizontalInput = Input.GetAxis("Horizontal");
-            if (!dDown) aDown = Input.GetKey(KeyCode.A);
-            if (!aDown) dDown = Input.GetKey(KeyCode.D);
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-            body.velocity = new Vector2(horizontalInput * speed, body.velocity.y);
-
-            if (Input.GetKey(KeyCode.W) && OnFloor)
-                Jump();
-
-            //set animator params
-            anim.SetBool("CursorRight", (mousePosition.x > body.position.x));
-            anim.SetBool("runRight", dDown);
-            anim.SetBool("runBackRight", aDown);
-            anim.SetBool("runLeft", aDown);
-            anim.SetBool("runBackLeft", dDown);
+            float horizontalInput = Input.GetAxis("Horizontal");
+            HandleMovement(horizontalInput);
+            HandleAnimation(mousePosition);
         }
 
     }
+
+    public void HandleMovement(float horizontalInput)
+    {
+        body.velocity = new Vector2(horizontalInput * speed, body.velocity.y);
+        if (Input.GetKey(KeyCode.W) && OnFloor)
+            Jump();
+    }
+
+    public void HandleAnimation(Vector3 mousePosition)
+    {
+        if (!dDown) aDown = Input.GetKey(KeyCode.A);
+        if (!aDown) dDown = Input.GetKey(KeyCode.D);
+
+        //set animator params
+        anim.SetBool("CursorRight", (mousePosition.x > body.position.x));
+        anim.SetBool("runRight", dDown);
+        anim.SetBool("runBackRight", aDown);
+        anim.SetBool("runLeft", aDown);
+        anim.SetBool("runBackLeft", dDown);
+    }
+
     private void Jump()
     {
         body.velocity = new Vector2(body.velocity.x, jump_speed);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,12 +6,12 @@ using UnityEngine.Tilemaps;
 
 public class PlatformBehavior : MonoBehaviour
 {
-    private TilemapCollider2D platformCollider;
+    public TilemapCollider2D platformCollider;
     private CompositeCollider2D platform;
     private PlayerMovement playerScript;
     public Rigidbody2D player;
-    float platform_pos;
-    double player_half_height;
+    public float platform_pos;
+    public double player_half_height;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,6 +26,10 @@ public class PlatformBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        HandlePlatform(); 
+    }
+    public void HandlePlatform()
+    {
         // Player is above the platform
         if (player.transform.position.y - player_half_height > platform_pos)
         {
@@ -34,7 +39,7 @@ public class PlatformBehavior : MonoBehaviour
         //Player is below the platform or hit the down button
         if (player.transform.position.y < platform_pos || Input.GetKey(KeyCode.S))
         {
-            if(Input.GetKey(KeyCode.S)) playerScript.OnFloor = false;
+            if (Input.GetKey(KeyCode.S)) playerScript.OnFloor = false;
             tag = "Untagged";
             platformCollider.enabled = false;
         }
